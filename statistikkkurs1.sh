@@ -1,0 +1,1 @@
+#!/bin/shruby statistikk.rb prod 11 60ruby statistikk.rb prod 11 61ruby statistikk.rb prod 11 62ruby statistikk.rb prod 11 63ruby statistikk.rb prod 11 64ruby statistikk.rb prod 11 65ruby statistikk.rb prod 11 66
