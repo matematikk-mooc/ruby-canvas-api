@@ -40,7 +40,7 @@ end
 #kaller man processEnrollments helt til det ikke er flere enrollments.
 def processSection(section)
 	sectionNo = section['name'][-2,2]
-	gn = sprintf("%s %02d", SiktUtility.groupPrefix, sectionNo)
+	gn = sprintf("%s %s", SiktUtility.groupPrefix, sectionNo)
 	dbg("Lag gruppen #{gn}")
 	group = createGroup(gn, $gid)
 	uri = sprintf("/api/v1/sections/%d/enrollments", section["id"])
