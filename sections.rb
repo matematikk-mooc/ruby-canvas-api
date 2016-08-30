@@ -1,6 +1,7 @@
 #https://github.com/whitmer/canvas-api
 require 'canvas-api'
 require_relative 'connection'  
+require_relative 'siktfunctions' 
 
 dst = ARGV[0]
 cid = ARGV[1]
