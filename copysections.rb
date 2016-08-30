@@ -11,7 +11,7 @@ $fromcid = ARGV[1]
 $tocid = ARGV[2]
 
 #Kopier bare seksjoner som begynner med denne prefixen.
-$sectionPrefix = "Seksjon"
+$sectionPrefix = "Studiegruppe"
 
 if(ARGV.size < 3)
 	dbg("Usage: ruby #{$0} prod/beta from_cid to_cid")
