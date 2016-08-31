@@ -32,13 +32,18 @@ $canvas = getCanvasConnection(dst)
 def processEnrollments(list, sectionId)
   uri = sprintf("/api/v1/sections/%d/enrollments", sectionId)
   list.each { |s| 
+  	 #Skip test user
   	 if(s["type"] == "StudentViewEnrollment")
   	 	dbg("Skip because of type #{s['type']}")
 	 else
   	 	uid = s["user_id"];
 	    dbg("Add user #{uid} to #{sectionId}")
 	    dbg(s)
-	    $canvas.post(uri, {'enrollment[user_id]' => uid, 'enrollment[type]' => s["type"], 'enrollment[enrollment_state]' => 'active', 'enrollment[course_section_id]' => sectionId })
+	    $canvas.post(uri, {'enrollment[user_id]' => uid, 
+	    'enrollment[type]' => s["type"], 
+	    'enrollment[enrollment_state]' => 'active', 
+	    'enrollment[course_section_id]' => sectionId,
+	    'enrollment[limit_privileges_to_course_section]' => s['limit_privileges_to_course_section'] })
   	 end
   }
 end
