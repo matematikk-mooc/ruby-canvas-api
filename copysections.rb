@@ -9,17 +9,20 @@ require_relative 'siktfunctions'
 dst = ARGV[0] 
 $fromcid = ARGV[1]
 $tocid = ARGV[2]
+$permissions = ARGV[3]
 
 #Kopier bare seksjoner som begynner med denne prefixen.
 $sectionPrefix = "Studiegruppe"
 
 if(ARGV.size < 3)
-	dbg("Usage: ruby #{$0} prod/beta from_cid to_cid")
+	dbg("Usage: ruby #{$0} prod/beta from_cid to_cid [begrens]")
 	dbg("prod/beta angir om kommandoene skal kjøres mot henholdsvis #{$prod} eller #{$beta}")
 	dbg("Kommandoen kopierer seksjoner fra kurset med kurs id from_cid til kurset med kurs id to_cid.")
 	dbg("Bare seksjoner som begynner med prefixet #{$sectionPrefix} blir kopiert.")
 	dbg("Dette prefixet kan settes i .rb filen")
 	dbg("Vær oppmerksom på at en ny seksjon med samme navn blir opprettet dersom den finnes fra før.")
+	dbg("Dersom 'begrens' er satt til 'section' eller 'public' blir brukernes rettigheter satt til dette.")
+	dbg("Ellers kopieres rettighetene fra forrige seksjon.")
 	exit
 end
 
@@ -39,11 +42,19 @@ def processEnrollments(list, sectionId)
   	 	uid = s["user_id"];
 	    dbg("Add user #{uid} to #{sectionId}")
 	    dbg(s)
+	    limitpermissions = s['limit_privileges_to_course_section']
+	    if($permissions == "section")
+	    	limitpermissions = true
+	    elsif($permissions == "public")
+	    	limitpermissions = false
+	    end
+		dbg("Set permission to ")
+		dbg(limitpermission)	    
 	    $canvas.post(uri, {'enrollment[user_id]' => uid, 
 	    'enrollment[type]' => s["type"], 
 	    'enrollment[enrollment_state]' => 'active', 
 	    'enrollment[course_section_id]' => sectionId,
-	    'enrollment[limit_privileges_to_course_section]' => s['limit_privileges_to_course_section'] })
+	    'enrollment[limit_privileges_to_course_section]' => limitpermissions })
   	 end
   }
 end
