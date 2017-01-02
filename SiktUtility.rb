@@ -12,7 +12,7 @@ class SiktUtility
 	@@sectionStudentHash = Hash.new
 	@@sectionUserHash = Hash.new
 	@@sectionTeacherHash = Hash.new
-	@@sectionPrefix = "Seksjon"
+	@@sectionPrefix = "Studiegruppe"
 	@@groupPrefix = "Studiegruppe"
 
   def self.groupsHash
