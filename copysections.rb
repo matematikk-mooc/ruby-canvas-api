@@ -49,7 +49,7 @@ def processEnrollments(list, sectionId)
 	    	limitpermissions = false
 	    end
 		dbg("Set permission to ")
-		dbg(limitpermission)	    
+		dbg(limitpermissions)	    
 	    $canvas.post(uri, {'enrollment[user_id]' => uid, 
 	    'enrollment[type]' => s["type"], 
 	    'enrollment[enrollment_state]' => 'active', 

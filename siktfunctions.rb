@@ -56,6 +56,13 @@ def getEnrollmentType(s)
 	return type
 end
 
+def getUserFromSisUserId(sis_user_id)
+    uri = sprintf("/api/v1/users/sis_user_id:%s",sis_user_id)
+	dbg(uri)
+    user = $canvas.get(uri)
+    return user
+end
+
 #Returner profilen til bruker uid
 def getUserProfile(uid)
     uri = sprintf("/api/v1/users/%d/profile",uid)
@@ -103,6 +110,36 @@ def getRubricComments(list)
   return comments
 end
 
+def getModuleItemsForStudent(cid, mid, sid)
+    uri = sprintf("/api/v1/courses/%d/modules/%d/items?student_id=%d&per_page=100", cid, mid, sid)
+    puts(uri)
+    moduleItems = $canvas.get(uri)
+    return moduleItems
+end
+
+def getModuleItems(cid, mid)
+    uri = sprintf("/api/v1/courses/%d/modules/%d/items?per_page=100", cid, mid)
+    puts uri
+    moduleItems = $canvas.get(uri)
+    return moduleItems
+end
+
+def getModules(cid)
+	uri = sprintf("/api/v1/courses/%d/modules?per_page=99", cid)
+	modules = $canvas.get(uri)
+	return modules
+end
+
+def getPages(cid)
+	uri = sprintf("/api/v1/courses/%d/pages?per_page=999", cid)
+	list = $canvas.get(uri)
+	return list
+end
+def getPageData(cid, url)
+	uri = sprintf("/api/v1/courses/%d/pages/%s", cid, url)
+	r = $canvas.get(uri)
+	return r["body"]
+end
 
 #Returner en liste av enrollments i seksjon sid.
 def getEnrollmentsInSection(sid)
@@ -143,8 +180,38 @@ def getAssignmentName(cid, aid)
     return a["name"]
 end
 
+def getAssignment(cid, aid)
+	uri = sprintf("/api/v1/courses/%d/assignments/%d", cid, aid)
+    a = $canvas.get(uri)
+    return a
+end
+
 def getAssignments(cid)
 	uri = sprintf("/api/v1/courses/%d/assignments", cid)
     l = $canvas.get(uri)
     return l
+end
+
+def getQuiz(cid, qid)
+	uri = sprintf("/api/v1/courses/%d/quizzes/%d", cid,qid)
+    l = $canvas.get(uri)
+    return l
+end
+
+def getQuizzes(cid)
+	uri = sprintf("/api/v1/courses/%d/quizzes", cid)
+    l = $canvas.get(uri)
+    return l
+end
+
+def getDiscussions(cid)
+	uri = sprintf("/api/v1/courses/%d/discussion_topics", cid)
+    l = $canvas.get(uri)
+    return l
+end
+
+def getDiscussion(cid, did)
+	uri = sprintf("/api/v1/courses/%d/discussion_topics/%d", cid, did)
+    d = $canvas.get(uri)
+    return d
 end
