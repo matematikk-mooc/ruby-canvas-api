@@ -14,15 +14,16 @@ $permissions = ARGV[3]
 #Kopier bare seksjoner som begynner med denne prefixen.
 $sectionPrefix = "Studiegruppe"
 
-if(ARGV.size < 3)
-	dbg("Usage: ruby #{$0} prod/beta from_cid to_cid [begrens]")
+if(ARGV.size < 4)
+	dbg("Usage: ruby #{$0} prod/beta from_cid to_cid begrens")
 	dbg("prod/beta angir om kommandoene skal kjøres mot henholdsvis #{$prod} eller #{$beta}")
 	dbg("Kommandoen kopierer seksjoner fra kurset med kurs id from_cid til kurset med kurs id to_cid.")
 	dbg("Bare seksjoner som begynner med prefixet #{$sectionPrefix} blir kopiert.")
 	dbg("Dette prefixet kan settes i .rb filen")
 	dbg("Vær oppmerksom på at en ny seksjon med samme navn blir opprettet dersom den finnes fra før.")
 	dbg("Dersom 'begrens' er satt til 'section' eller 'public' blir brukernes rettigheter satt til dette.")
-	dbg("Ellers kopieres rettighetene fra forrige seksjon.")
+	dbg("Dersom 'begrens' er satt til 'samme' blir brukernes rettigheter satt til den samme som det ")
+	dbg("brukeren har i seksjonen man kopierer fra.")
 	exit
 end
 
