@@ -40,7 +40,8 @@ end
 #kaller man processEnrollments helt til det ikke er flere enrollments.
 def processSection(section)
 	sectionNo = section['name'][-2,2]
-	gn = sprintf("%s %s", SiktUtility.groupPrefix, sectionNo)
+	sectionNoWithoutWhiteSpace = sectionNo.gsub(/\s+/, '')
+	gn = sprintf("%s %s", SiktUtility.groupPrefix, sectionNoWithoutWhiteSpace)
 	dbg("Lag gruppen #{gn}")
 	group = createGroup(gn, $gid)
 	uri = sprintf("/api/v1/sections/%d/enrollments", section["id"])
@@ -64,7 +65,9 @@ end
 
 #Hent ut alle seksjonene i kurset det skal kopieres fra. 
 #Kurset det skal kopieres fra er spesifisert i en globale variabelen $cid som er en ARGV parameter.
+
 uri = sprintf("/api/v1/courses/%d/sections",$cid)
+dbg(uri)
 sections = $canvas.get(uri)
 processSections(sections)
 while sections.more?  do
