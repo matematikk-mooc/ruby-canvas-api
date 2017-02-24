@@ -5,7 +5,7 @@ RUN apt-get -y install ruby
 RUN apt-get -y install build-essential patch
 RUN apt-get -y install ruby-dev zlib1g-dev liblzma-dev
 RUN apt-get -y install curl libcurl4-openssl-dev
-RUN apt-get -y intall git
+RUN apt-get -y install git
 WORKDIR /
 RUN git clone https://github.com/matematikk-mooc/canvas-api.git
 RUN gem install canvas-api
