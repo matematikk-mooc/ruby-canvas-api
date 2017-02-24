@@ -7,9 +7,8 @@ RUN apt-get -y install ruby-dev zlib1g-dev liblzma-dev
 RUN apt-get -y install curl libcurl4-openssl-dev
 RUN apt-get -y intall git
 WORKDIR /
-RUN git clone 
+RUN git clone https://github.com/matematikk-mooc/canvas-api.git
 RUN gem install canvas-api
 ENV CURL_CA_BUNDLE=/canvas-api/mmooc.crt
 WORKDIR /canvas-api
-RUN git clone https://github.com/matematikk-mooc/canvas-api.git
 CMD ["/bin/bash","/canvas-api"]
