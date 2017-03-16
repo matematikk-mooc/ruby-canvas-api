@@ -2,7 +2,7 @@ require 'canvas-api'
 require 'csv'
 require_relative 'connection' 
 require_relative 'SiktUtility' 
-require_relative 'SiktFunctions' 
+require_relative 'siktfunctions' 
 dst = ARGV[0] 
 $cid = ARGV[1]
 $aid = ARGV[2]
@@ -21,6 +21,7 @@ $canvas = getCanvasConnection(dst)
 #Denne seksjonen må eksistere.
 def submitSubmission(id)
 	 s = sprintf("Dette er bruker id %d sin innlevering", id)
+	 puts(s)
 	 uri = sprintf("/api/v1/courses/%d/assignments/%d/submissions?as_user_id=%d", $cid, $aid, id);
 	 puts(uri)
 	 $canvas.post(uri, 

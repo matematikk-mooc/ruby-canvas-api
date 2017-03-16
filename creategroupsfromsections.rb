@@ -2,7 +2,7 @@ require 'canvas-api'
 require 'csv'
 require_relative 'connection' 
 require_relative 'SiktUtility' 
-require_relative 'SiktFunctions' 
+require_relative 'siktfunctions' 
 dst = ARGV[0] 
 $cid = ARGV[1]
 $gid = ARGV[2]

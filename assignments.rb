@@ -1,9 +1,9 @@
 require 'canvas-api'
 require_relative 'connection'  
 require_relative 'siktfunctions'  
-dst = ARGV[0]
+$dst = ARGV[0]
 cid = ARGV[1]
-frmt = ARGV[2]
+$frmt = ARGV[2]
 
 if(ARGV.size < 2)
 	dbg("Usage: ruby #{$0} prod/beta cid [y]")
@@ -13,21 +13,25 @@ if(ARGV.size < 2)
 	exit
 end
 
-$canvas = getCanvasConnection(dst)
+$canvas = getCanvasConnection($dst)
 
-list = getAssignments(cid)
-printf("Id\Oppgavenavn\tHverandrevurdering\n")
-list.each { |a|
-	if(!a['quiz_id'])	
-		if(frmt == nil)
-			printf("%s\t%s\t%s\n", a['id'], a['name'], a['peer_reviews'] ? "JA" : "NEI")
-		else
-			printf("ruby submissions.rb %s %s %d\n", dst, cid, a['id'])
-			if(a['peer_reviews'])
-				printf("ruby peerreviews.rb %s %s %d\n", dst, cid, a['id'])		
+def printAssignmentsForCourse(cid)
+	list = getAssignments(cid)
+	printf("Id\Oppgavenavn\tHverandrevurdering\n")
+	list.each { |a|
+		if(!a['quiz_id'])	
+			if($frmt == nil)
+				printf("%s\t%s\t%s\n", a['id'], a['name'], a['peer_reviews'] ? "JA" : "NEI")
+			else
+				printf("ruby submissions.rb %s %s %d\n", $dst, cid, a['id'])
+				if(a['peer_reviews'])
+					printf("ruby peerreviews.rb %s %s %d\n", $dst, cid, a['id'])		
+				end
 			end
 		end
-	end
-} 
+	} 
+end
+
+printAssignmentsForCourse(cid)
 
 

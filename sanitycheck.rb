@@ -4,12 +4,11 @@ require_relative 'siktfunctions'
 
 dst = ARGV[0]
 cid = ARGV[1]
-mid = ARGV[2]
 
-if(ARGV.size < 3)
-	dbg("Usage: ruby #{$0} prod/beta cid mid")
+if(ARGV.size < 2)
+	dbg("Usage: ruby #{$0} prod/beta cid")
 	dbg("prod/beta angir om kommandoene skal kjøres mot henholdsvis #{$prod} eller #{$beta}")
-	dbg("Sjekker manglende krav etc. i kurs med id cid og modul med id mid.")
+	dbg("Sjekker manglende krav etc. i kurs med id cid")
 	exit
 end
 $canvas = getCanvasConnection(dst)
@@ -109,6 +108,9 @@ def printAssignmentTable(cid, x)
 	end
 	content_id = x["content_id"]
 	a = getAssignment(cid, content_id)
+	printRow("Type:", a["submission_types"])
+	printRow("Filendelse:", a["allowed_extensions"])
+	
 	printRow("Frist:", a["due_at"])
 	printRow("Hverandrevurdering:", a["peer_reviews"])
 	hvvfrist = "-"
@@ -116,6 +118,20 @@ def printAssignmentTable(cid, x)
 		hvvfrist = a["peer_reviews_assign_at"]
 	end
 	printRow("Hverandrevurderingsfrist:", hvvfrist)
+	printRow("Antall vurderinger:", a["peer_review_count"])
+end
+
+def printQuizTable(cid, x)
+	req = x["completion_requirement"]
+	if req
+		reqtype = req["type"]
+		if(reqtype != "min_score")
+			printRedRow("Krav:", reqtype + " på quiz.")
+		end
+	end
+	content_id = x["content_id"]
+	a = getQuiz(cid, content_id)
+	printRow("Frist:", a["due_at"])
 end
 
 #  // the type of object referred to one of 'File', 'Page', 'Discussion',
@@ -187,7 +203,7 @@ def getModuleInfo(cid, mid)
 	uri = sprintf("/api/v1/courses/%d/modules/%d", cid, mid)
 	dbg(uri)
     m = $canvas.get(uri)
-    return m["name"]
+    return m
 end
 
 def getCourseInfo(cid)
@@ -195,15 +211,73 @@ def getCourseInfo(cid)
 	dbg(uri)
 	dbg($canvas)
     c = $canvas.get(uri)
-    return c["name"]
+    return c
 end
 
-courseName = getCourseInfo(cid)
-moduleInfo = getModuleInfo(cid, mid)
+
+
+$discussionType = 0
+$assignmentType = 1
+$quizType = 2
+$pageType = 3
+
+def getTitle(e, type)
+	title = ""
+	if((type == $discussionType) || (type == $pageType))
+		title = e['title']
+	else
+		title = e['name']
+	end
+	return title
+end
+
+def getPublishedString(e)
+	s = "UPUBLISERT"
+	if (e['published'])
+		s = "PUBLISERT"
+	end
+	return s
+end
+
+def getContentId(e, type)
+	content_id = 0
+	if(type == $pageType)
+		content_id = e["page_id"]
+	else
+		content_id = e["id"]
+	end
+end
+def orphanElements(list, type)
+	orphans = false
+	list.each { |e|
+#		element_id = getContentId(e, type)
+		key = e["html_url"]
+#		printf("Looking up %s\n", key)
+#		mi = $AllModuleItems[element_id]
+		mi = $AllModuleItems[key]
+		#Is element orphan?
+		if(!mi)
+			printf "Key not found:%s\n", key;
+
+			title = getTitle(e, type)
+			s = getPublishedString(e)
+			ss = sprintf("<p>%s\t%s\t<a href='%s'>%s</a></p>", s, title , key,key)
+			myputs(ss)
+			orphans = true
+		end
+	} 
+	if(!orphans)
+		myputs "ingen"
+	end
+end
+
+$AllModuleItems = Hash.new
+
+courseInfo = getCourseInfo(cid)
+courseName = courseInfo["name"]
 
 cn = courseName.gsub(/[^0-9A-Za-z]/, '')
-mn = moduleInfo.gsub(/[^0-9A-Za-z]/, '')
-filename = sprintf("SANITY_%s_%s.html", cn, mn)
+filename = sprintf("SANITY_%s.html", cn)
 
 dbg("OpenFile")
 
@@ -241,12 +315,54 @@ t = Time.now
 
 
 myputs "Dato: " + t.inspect
-heading = sprintf("<h1>%s</h1>", moduleInfo)
-myputs heading
-myputs "<table>"
 
-printSanityTableForModule(cid, mid)
-myputs "</table>"
+printf("Henter moduler\n")
+courseHeading = sprintf("<h1>%s</h1>", courseName)
+coursePublished = sprintf("Publisert: %s", courseInfo["published"] ? "JA" : "NEI")
+
+myputs courseHeading
+myputs coursePublished
+modules = getModules(cid)
+modules.each { |m|
+	mid = m["id"]
+	moduleItems = getModuleItems(cid, mid)
+	printf("Henter moduleelementer for modul %d\n", mid)
+	moduleItems.each { |mi|
+		key = mi["url"].sub!("/api/v1", "")
+		printf "Add key:%s\n", key;
+		$AllModuleItems[key] = mi
+	}
+	moduleInfo = getModuleInfo(cid, mid)
+	moduleName = moduleInfo["name"]
+	heading = sprintf("<h2>%s</h2>", moduleName)
+	modulePublished = sprintf("Publisert: %s", moduleInfo["published"] ? "JA" : "NEI")
+	myputs heading
+	myputs modulePublished
+	myputs "<table>"
+	printSanityTableForModule(cid, mid)
+	myputs "</table>"
+} 
+
+puts "Kontroller for løsrevne sider..."
+myputs "<h1>Kontroller for løsrevne sider...</h1>"
+list = getPages(cid)
+orphanElements(list, $pageType)
+
+puts "Kontroller for løsrevne diskusjoner..."
+myputs "<h1>Kontroller for løsrevne diskusjoner...</h1>"
+list = getDiscussions(cid)
+orphanElements(list, $discussionType)
+
+puts "Kontroller for løsrevne oppgaver..."
+myputs "<h1>Kontroller for løsrevne oppgaver...</h1>"
+list = getAssignments(cid)
+orphanElements(list, $assignmentType)
+
+puts "Kontroller for løsrevne quizer..."
+myputs "<h1>Kontroller for løsrevne quizer...</h1>"
+list = getQuizzes(cid)
+orphanElements(list, $quizType)
+
 
 myputs "</body></html>"
 CloseFile()
