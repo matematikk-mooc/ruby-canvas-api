@@ -56,12 +56,6 @@ end
 
 
 def processSection(sid, aid, sectionName)
-	if sectionName.include? "Seksjon"
-	else
-	    dbg("Drop section")
-	    dbg(sectionName)
-		return
-	end
     enrollments = getEnrollmentsInSection(sid)
     dbg("=================================")
     dbg(sectionName)

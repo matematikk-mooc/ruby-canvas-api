@@ -12,10 +12,16 @@ def getCanvasConnection(dst)
 	if(dst == "prod")
 		#Du må generere ditt eget token. Les hvordan her:
 		#https://guides.instructure.com/m/4214/l/40399-how-do-i-obtain-an-api-access-token-for-an-account
-		conn = Canvas::API.new(:host => $prod, :token => "Vey7Yc0YExJ1lzFbFNyeAcaU5pstxFbibyAl6ir5")
+		$token = ""
+		$host = $prod
 	else
-		conn = Canvas::API.new(:host => $beta, :token => "oL61YvmG79Nne6GJZyn7PLaUOuksd2UaXhWx1hjJ")
+		#Du må generere ditt eget token. Les hvordan her:
+		#https://guides.instructure.com/m/4214/l/40399-how-do-i-obtain-an-api-access-token-for-an-account
+	    $token = ""
+		$host = $beta
 	end
+	puts $host
+   	conn = Canvas::API.new(:host => $host, :token => $token)
 	return conn;
 end
 

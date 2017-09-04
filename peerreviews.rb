@@ -13,7 +13,7 @@ $aid = ARGV[2]
 
 
 if(ARGV.size < 3)
-	dbg("Usage: ruby #{$0} prod/beta cid gid dbg")
+	dbg("Usage: ruby #{$0} prod/beta cid aid")
 	dbg("prod/beta angir om kommandoene skal kjøres mot henholdsvis #{$prod} eller #{$beta}")
 	dbg("Kommandoen skriver ut status på oppgave aid i kurs cid.")
 	exit

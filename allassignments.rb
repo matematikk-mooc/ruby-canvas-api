@@ -13,30 +13,24 @@ end
 
 $canvas = getCanvasConnection(dst)
 
-def printAssignmentsForCourse(cid)
+def printAssignmentsForCourse(cid, coursename)
 	list = getAssignments(cid)
-	printf("Id\Oppgavenavn\tHverandrevurdering\n")
 	list.each { |a|
 		if(!a['quiz_id'])	
-			printf("%s\t%s\t%s\n", a['id'], a['name'], a['peer_reviews'] ? "JA" : "NEI")
+			printf("%s\t%s\t%s\t%s\t%s\n", a['id'], a['name'], a['peer_reviews'] ? "JA" : "NEI", cid, coursename)
 		end
 	} 
 end
 
-uri = sprintf("/api/v1/accounts/%d/courses?per_page=999", accountid)
-
-
-
-
-
 def processCourses(list)
     list.each { |c|
-	    printf("%s\t%s\n", c['id'], c['name'])
-    	printAssignmentsForCourse(c['id'])
+    	printAssignmentsForCourse(c['id'], c['name'])
     } 
 end
 
-printf("Id\tKursnavn\n")
+printf("Oppgave Id\tOppgavenavn\tHverandrevurdering\tKurs Id\tKursnavn\n")
+uri = sprintf("/api/v1/accounts/%d/courses?per_page=999", accountid)
+
 list = $canvas.get(uri)
 processCourses(list)
 while list.more?  do

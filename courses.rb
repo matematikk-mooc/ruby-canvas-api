@@ -21,8 +21,7 @@ canvas = getCanvasConnection(dst)
 
 uri = sprintf("/api/v1/accounts/%d/courses?per_page=999", accountid)
 
-
-list = canvas.get(uri)
+def processCourses(list, frmt)
 if(frmt == "sis")
   printf("course_id,short_name,long_name,account_id,term_id,status,start_date,end_date,course_format\n")
 else
@@ -37,7 +36,15 @@ list.each { |c|
 	end
 } 
 
+end
 
+
+list = canvas.get(uri)
+processCourses(list, frmt)
+while list.more?  do
+  list = list.next_page!
+  processCourses(list, frmt)
+end
 #SIS FORMAT from https://canvas.instructure.com/doc/api/file.sis_csv.html
 #Field Name	Data Type	Required	Sticky	Description
 #course_id	text	✓		A unique identifier used to reference courses in the enrollments data. This identifier must not change for the account, and must be globally unique. In the user interface, this is called the SIS ID.

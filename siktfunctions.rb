@@ -187,7 +187,7 @@ def getAssignment(cid, aid)
 end
 
 def getAssignments(cid)
-	uri = sprintf("/api/v1/courses/%d/assignments", cid)
+	uri = sprintf("/api/v1/courses/%d/assignments?per_page=1000", cid)
     l = $canvas.get(uri)
     return l
 end
