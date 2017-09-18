@@ -15,8 +15,6 @@ def getCanvasConnection(dst)
 		$token = ""
 		$host = $prod
 	else
-		#Du må generere ditt eget token. Les hvordan her:
-		#https://guides.instructure.com/m/4214/l/40399-how-do-i-obtain-an-api-access-token-for-an-account
 	    $token = ""
 		$host = $beta
 	end
