@@ -12,10 +12,10 @@ def getCanvasConnection(dst)
 	if(dst == "prod")
 		#Du må generere ditt eget token. Les hvordan her:
 		#https://guides.instructure.com/m/4214/l/40399-how-do-i-obtain-an-api-access-token-for-an-account
-		$token = "3727~MZFheA8yXbbxDiq5FuBGCtGgC3PFkx0croC4M2kCB1jcc3lMSbtfnlAgTloMoXNg"
+		$token = ""
 		$host = $prod
 	else
-	    $token = "BTbf0P0ovlKRuUQbzD83Gmtz8V5hxe4PQ5ayMwKNnnR67Y2vuDneHl6ZY0WJXQex"
+	    $token = ""
 		$host = $beta
 	end
 	puts $host
