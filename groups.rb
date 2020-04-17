@@ -13,12 +13,21 @@ end
 
 canvas = getCanvasConnection(dst)
 
-uri = sprintf("/api/v1/group_categories/%d/groups?per_page=999", gid)
-list = canvas.get(uri)
-printf("Id\tNavn\n")
-list.each { |c|
-	printf("%s\t%s\n", c['id'], c['name'])
+def processList(list)
+	list.each { |c|
+	printf("%s\t%s\t%s\t%s\n", c['id'], c['name'], c['description'], c['members_count'])
 } 
+end
+
+uri = sprintf("/api/v1/group_categories/%d/groups?per_page=50", gid)
+list = canvas.get(uri)
+printf("Id\tNavn\tDescription\tMembers count\n")
+
+processList(list)
+while list.more?  do
+	list = list.next_page!
+	processList(list)
+end
 
 
 

@@ -14,6 +14,7 @@ end
 canvas = getCanvasConnection(dst)
 
 uri = sprintf("/api/v1/courses/%d/group_categories", cid)
+print uri
 list = canvas.get(uri)
 printf("Id\tGruppekategori\n")
 list.each { |c|

@@ -5,15 +5,16 @@ require_relative 'siktfunctions'
 
 dst = ARGV[0]
 cid = ARGV[1]
+outfile = ARGV[2]
+
 
 if(ARGV.size < 3)
-	dbg("Usage: ruby #{$0} prod/beta cid")
+	dbg("Usage: ruby #{$0} prod/beta cid filename")
 	dbg("prod/beta angir om kommandoene skal kjøres mot henholdsvis #{$prod} eller #{$beta}")
-	dbg("Kommandoen lister ut bruker id, fullt navn, navn som skal vises og navn for sortering for alle seksjoner for kurs med kurs id 'cid'.")
+	dbg("Kommandoen lister ut bruker id, epost, fullt navn, navn som skal vises og navn for sortering for alle seksjoner for kurs med kurs id 'cid'.")
 	exit
 end
 
-outfile = ARGV[2]
 dbg("Outfile:")
 dbg(outfile)
 
@@ -43,7 +44,7 @@ def processEnrollments(list)
   list.each { |s| 
 	 uid = s["user_id"];
      p = getUserProfile(uid)
-	 s = sprintf("%s\t%s\t%s\t%s\n", p['id'], p['name'], p['short_name'], p['sortable_name'])
+	 s = sprintf("%s\t%s\t%s\t%s\n", p['id'], p['login_id'], p['primary_email'], p['name'], p['short_name'], p['sortable_name'])
 	 myputs(s)
   }
 end
@@ -52,6 +53,8 @@ end
 #Dette vil være en seksjon i kurset det skal kopieres fra. Deretter 
 #kaller man processEnrollments helt til det ikke er flere enrollments.
 def processSection(section)
+    myputs("\n");
+    myputs(section["name"]);
 	uri = sprintf("/api/v1/sections/%d/enrollments", section["id"])
 	list = $canvas.get(uri)
 	processEnrollments(list)
@@ -69,7 +72,7 @@ def processSections(sections)
 end
 
 OpenFile(outfile)
-myputs("Id\tFullt navn\tNavn som skal vises\tNavn for sortering\n")
+myputs("Id\tLogin Id\tPrimary email\tFullt navn\tNavn som skal vises\tNavn for sortering\n")
 
 uri = sprintf("/api/v1/courses/%d/sections",cid)
 sections = $canvas.get(uri)

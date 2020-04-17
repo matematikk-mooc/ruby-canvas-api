@@ -14,7 +14,7 @@ accountid = ARGV[1]
 
 canvas = getCanvasConnection(dst)
 
-uri = sprintf("/api/v1/accounts/%d/sub_accounts", accountid)
+uri = sprintf("/api/v1/accounts/%d/sub_accounts?per_page=999", accountid)
 
 
 list = canvas.get(uri)

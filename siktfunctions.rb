@@ -2,16 +2,41 @@
 #Dato: Høsten 2015
 #Skrevet i forbindelse med prosjektet matematikkMOOC
 
+require 'colorize'
+require 'uri'
 
 def dbg(s)
 	STDERR.puts s
 end
 
+#/api/v1/accounts/:account_id/logins
+def addLoginToUser(account_id, user_id, login_id)
+    uri = sprintf("/api/v1/accounts/%d/logins", account_id)
+	 $canvas.post(uri, {
+	 'user[id]' => user_id,
+	 'login[unique_id]' => login_id}
+	 )
+end
 #Legg bruker uid til gruppe groupId
 def addUserToGroup(uid, groupId)
       uri = sprintf("/api/v1/groups/%d/memberships", groupId)
 	 $canvas.post(uri, {'user_id' => uid})
 end
+ 
+def createPage(cid, title, body)
+    uri = sprintf("/api/v1/courses/%d/pages", cid)
+    newPage = $canvas.post(uri, {'wiki_page[title]' => title, 'wiki_page[body]' => body })
+    dbg(newPage)
+    return newPage
+end
+
+def createModuleItem(cid, mid, type, content, position)
+  uri = sprintf("/api/v1/courses/%d/modules/%d/items", cid, mid) 
+  dbg(uri)
+  newModuleItem = $canvas.post(uri, {'module_item[page_url]' => content["url"],'module_item[type]' => type, 'module_item[content_id]' => content["id"], 'module_item[position]' => position})
+  dbg(newModuleItem)
+  return newModuleItem
+end 
  
 #Opprett gruppe med navn groupName i gruppesettet gid.
 def createGroup(groupName, gid)
@@ -124,6 +149,13 @@ def getModuleItems(cid, mid)
     return moduleItems
 end
 
+def getCourses(accountId)
+    uri = sprintf("/api/v1/accounts/%d/courses?include[]=teachers&per_page=999", accountId)
+    list = $canvas.get(uri)
+    return list
+end
+
+
 def getModules(cid)
 	uri = sprintf("/api/v1/courses/%d/modules?per_page=99", cid)
 	modules = $canvas.get(uri)
@@ -139,6 +171,12 @@ def getPageData(cid, url)
 	uri = sprintf("/api/v1/courses/%d/pages/%s", cid, url)
 	r = $canvas.get(uri)
 	return r["body"]
+end
+
+def getEnrollmentsForCourse(courseId)
+	uri = sprintf("/api/v1/courses/%d/enrollments?role[]=StudentEnrollment&per_page=50", courseId)
+	enrollments = $canvas.get(uri)
+	return enrollments
 end
 
 #Returner en liste av enrollments i seksjon sid.
@@ -204,6 +242,15 @@ def getQuizzes(cid)
     return l
 end
 
+def deleteDiscussion(cid, did)
+    $uri = sprintf("/api/v1/courses/%d/discussion_topics/%d", cid, did)
+    $canvas.delete($uri)
+end
+def deleteAssignment(cid, aid)
+    $uri = sprintf("/api/v1/courses/%d/assignments/%d", cid, aid)
+    $canvas.delete($uri)
+end
+
 def getDiscussions(cid)
 	uri = sprintf("/api/v1/courses/%d/discussion_topics", cid)
     l = $canvas.get(uri)
@@ -212,6 +259,46 @@ end
 
 def getDiscussion(cid, did)
 	uri = sprintf("/api/v1/courses/%d/discussion_topics/%d", cid, did)
+	dbg(uri)
     d = $canvas.get(uri)
     return d
+end
+
+$discussionType = 0
+$assignmentType = 1
+$quizType = 2
+$pageType = 3
+
+def searchFor(cid, list, type, s)
+	list.each { |c|
+		body = ""
+		title = ""
+		if(type == $pageType)
+            printf("<!-- %s -->", c['url'])
+            body = getPageData(cid, URI.escape(c['url']))
+            title = c["title"]
+		elsif (type == $discussionType)
+            body = c['message']
+            title = c["title"]
+		elsif (type == $assignmentType)
+            body = c['description']
+            title = c["name"]
+		elsif (type == $quizType)
+            body = c['description']
+            title = c["title"]
+		end
+    #	puts body
+        found = false
+        if title.downcase.include? s.downcase
+            found = true
+        end
+        if body 
+            if body.downcase.include? s.downcase
+                found = true
+            end
+        end	
+        if found
+            printf("<br/><a href='%s' target='_blank'>%s</a>\n", c['html_url'], title)
+        end
+	} 
 end

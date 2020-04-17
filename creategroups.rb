@@ -10,7 +10,7 @@ $gid = ARGV[2]
 if(ARGV.size < 3)
 	dbg("Usage: ruby #{$0} prod/beta cid gid")
 	dbg("prod/beta angir om kommandoene skal kjøres mot henholdsvis #{$prod} eller #{$beta}")
-	dbg("Kommandoen oppretter grupper basert på seksjoner for kurset med id 'cid'.")
+	dbg("Kommandoen oppretter 6000 grupper basert på seksjoner for kurset med id 'cid'.")
 	dbg("Gruppene legges i gruppesettet med id 'gid' og medlemmene er studentene i de tilhørende seksjonene.")
 	dbg("Seksjonene må eksistere og være på formatet '#{SiktUtility.sectionPrefix} nn'.")
 	dbg("Gruppesettet må eksistere. Gruppene får navn på formatet '#{SiktUtility.groupPrefix} nn'.")
@@ -39,10 +39,9 @@ end
 #Dette vil være en seksjon i kurset det skal kopieres fra. Deretter 
 #kaller man processEnrollments helt til det ikke er flere enrollments.
 def processSection(section)
-#	sectionNo = section['name'][-2,2]
-#	sectionNoWithoutWhiteSpace = sectionNo.gsub(/\s+/, '')
-#	gn = sprintf("%s %s", SiktUtility.groupPrefix, sectionNoWithoutWhiteSpace)
-    gn = section['name']
+	sectionNo = section['name'][-2,2]
+	sectionNoWithoutWhiteSpace = sectionNo.gsub(/\s+/, '')
+	gn = sprintf("%s %s", SiktUtility.groupPrefix, sectionNoWithoutWhiteSpace)
 	dbg("Lag gruppen #{gn}")
 	group = createGroup(gn, $gid)
 	uri = sprintf("/api/v1/sections/%d/enrollments", section["id"])

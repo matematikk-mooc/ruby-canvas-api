@@ -14,32 +14,35 @@ if(ARGV.size < 2)
 end
 
 dst = ARGV[0]
-accountid = ARGV[1]
+accountId = ARGV[1]
 frmt = ARGV[2]
 
-canvas = getCanvasConnection(dst)
-
-uri = sprintf("/api/v1/accounts/%d/courses?per_page=999", accountid)
+$canvas = getCanvasConnection(dst)
 
 def processCourses(list, frmt)
-if(frmt == "sis")
-  printf("course_id,short_name,long_name,account_id,term_id,status,start_date,end_date,course_format\n")
-else
-    printf("Id\tKursnavn\n")
-end
-
-list.each { |c|
     if(frmt == "sis")
-        printf("%s,%s,%s,,,active,,,\n",c['sis_course_id'],c['course_code'],c['name'])
+      printf("course_id,short_name,long_name,account_id,term_id,status,start_date,end_date,course_format\n")
     else
-    	printf("%s\t%s\n", c['id'], c['name'])
-	end
-} 
+        printf("Id\tKonto Id\tKursnavn\tFaglærere\n")
+    end
+
+    list.each { |c|
+        teachers = ""
+        teacherArr = c["teachers"]
+        teacherArr.each { |t| 
+          teachers += t["display_name"] + ","
+        }
+        if(frmt == "sis")
+            printf("%s,%s,%s,,,active,,,\n",c['sis_course_id'],c['course_code'],c['name'])
+        else
+            printf("%s\t%s\t%s\t%s\n", c['id'], c['account_id'], c['name'], teachers)
+        end
+    } 
 
 end
 
 
-list = canvas.get(uri)
+list = getCourses(accountId)
 processCourses(list, frmt)
 while list.more?  do
   list = list.next_page!
