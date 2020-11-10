@@ -179,6 +179,12 @@ def getEnrollmentsForCourse(courseId)
 	return enrollments
 end
 
+def getEnrollmentsForCourseForAllUserTypes(courseId)
+	uri = sprintf("/api/v1/courses/%d/enrollments?per_page=50", courseId)
+	enrollments = $canvas.get(uri)
+	return enrollments
+end
+
 #Returner en liste av enrollments i seksjon sid.
 def getEnrollmentsInSection(sid)
 	uri = sprintf("/api/v1/sections/%d/enrollments?type[]=StudentEnrollment&per_page=999", sid)

@@ -33,7 +33,7 @@ end
 $file2 = OpenFile("enrollments#{courseId}.csv")
 page = 1
 puts "page #{page}"
-list = getEnrollmentsForCourse(courseId)
+list = getEnrollmentsForCourseForAllUserTypes(courseId)
 processEnrollments(list)
 page += 1
 

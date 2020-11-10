@@ -1,5 +1,8 @@
 *.csv
 *.xls
-*.json
 *.txt
+*.json
 connection.rb
+connectionudir.rb
+connectionusn.rb
+

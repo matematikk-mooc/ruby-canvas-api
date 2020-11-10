@@ -38,8 +38,6 @@ end
 
 
 
-#I denne funksjonen kommer det en liste med enrollments fra kurset det skal kopieres fra. Disse legges så inn i seksjonen sectionId i kurset det skal kopieres til.
-#Denne seksjonen må eksistere.
 def processEnrollments(list)
   list.each { |s| 
 	 uid = s["user_id"];
@@ -55,6 +53,7 @@ end
 def processSection(section)
     myputs("\n");
     myputs(section["name"]);
+    myputs("\n");
 	uri = sprintf("/api/v1/sections/%d/enrollments", section["id"])
 	list = $canvas.get(uri)
 	processEnrollments(list)

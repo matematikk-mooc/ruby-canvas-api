@@ -16,7 +16,9 @@ end
 canvas = getCanvasConnection(dst)
 
 uri = sprintf("/api/v1/accounts/%d/users", accountid)
-pseudo = username + "@erlendthune.com"
+#pseudo = username + "@erlendthune.com"
+pseudo = username
+
 newUser = canvas.post(uri, {'user[name]' => username, 'pseudonym[unique_id]' => pseudo, 'user[terms_of_use]' => 1,'pseudonym[send_confirmation]' => 0 })
 
 print newUser
