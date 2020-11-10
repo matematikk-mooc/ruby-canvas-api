@@ -35,12 +35,6 @@ end
 
 
 def processGroup(group, faculty)
-#		 /api/v1/groups/:group_id
-#curl https://<canvas>/api/v1/groups/<group_id> \
-#     -X PUT \
-#     -F 'name=Algebra Teachers' \
-#     -F 'join_level=parent_context_request' \
-#     -H 'Authorization: Bearer MRZCOUiX9Iars4IKPoYDVblWERT9rvGSh8ZW4re54RjfiOlG0VZcE07JRsn8eiHx'
 		 fixed_string = "faculty:" + faculty + ":" + group["description"]
 		 s1 = sprintf("curl '%s/api/v1/groups/%d' ", $host, group["id"]) 
 	     s2 = sprintf("-X PUT -F 'description=%s' ", fixed_string)
