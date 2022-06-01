@@ -19,23 +19,54 @@ frmt = ARGV[2]
 
 $canvas = getCanvasConnection(dst)
 
-def processCourses(list, frmt)
-    if(frmt == "sis")
-      printf("course_id,short_name,long_name,account_id,term_id,status,start_date,end_date,course_format\n")
-    else
-        printf("Id\tKonto Id\tKursnavn\tFaglærere\n")
-    end
+def OpenFile(filename)
+	return File.open( filename,"w:UTF-8" )
+end
+def CloseFile(file)
+	file.close
+end
 
+def myputs(s)
+	$file << s
+end
+
+$file = OpenFile("courses.csv")
+if(frmt == "sis")
+  printf("course_id,short_name,long_name,account_id,term_id,status,start_date,end_date,course_format\n")
+else
+    myputs("EmneId;KontoId;KursNavn;AntallStudenter;Faglærere;FaglærereEpost\n")
+end
+
+
+def processCourses(list, frmt)
     list.each { |c|
+        puts c
+        puts("Kursid:#{c['id']} KontoId:#{c['account_id']}")
         teachers = ""
+        teachersEmail = ""
         teacherArr = c["teachers"]
+        firstEntry = true
         teacherArr.each { |t| 
-          teachers += t["display_name"] + ","
+          if(!firstEntry)
+            teachers += ", "
+          end
+          if(!firstEntry)
+            teachersEmail += ", "
+          end
+          #puts("ProfilId:#{t['id']}")
+          profile = getUserProfile(t["id"])
+          if(profile != nil)
+            teachers += t["display_name"]
+            if(profile["primary_email"])
+              teachersEmail += profile["primary_email"]
+            end
+          end
+          firstEntry = false
         }
-        if(frmt == "sis")
+       if(frmt == "sis")
             printf("%s,%s,%s,,,active,,,\n",c['sis_course_id'],c['course_code'],c['name'])
         else
-            printf("%s\t%s\t%s\t%s\n", c['id'], c['account_id'], c['name'], teachers)
+            myputs("#{c['id']};#{c['account_id']};#{c['name']};#{c['total_students']};#{teachers};#{teachersEmail}\n")
         end
     } 
 
@@ -48,14 +79,5 @@ while list.more?  do
   list = list.next_page!
   processCourses(list, frmt)
 end
-#SIS FORMAT from https://canvas.instructure.com/doc/api/file.sis_csv.html
-#Field Name	Data Type	Required	Sticky	Description
-#course_id	text	✓		A unique identifier used to reference courses in the enrollments data. This identifier must not change for the account, and must be globally unique. In the user interface, this is called the SIS ID.
-#short_name	text	✓	✓	A short name for the course
-#long_name	text	✓	✓	A long name for the course. (This can be the same as the short name, but if both are available, it will provide a better user experience to provide both.)
-#account_id	text			The account identifier from accounts.csv, if none is specified the course will be attached to the root account
-#term_id	text		✓	The term identifier from terms.csv, if no term_id is specified the default term for the account will be used
-#status	enum	✓	✓	active, deleted, completed
-#start_date	date		✓	The course start date. The format should be in ISO 8601: YYYY-MM-DDTHH:MM:SSZ
-#end_date	date		✓	The course end date. The format should be in ISO 8601: YYYY-MM-DDTHH:MM:SSZ
-#course_format	enum			on_campus, online, blended
+
+CloseFile($file)

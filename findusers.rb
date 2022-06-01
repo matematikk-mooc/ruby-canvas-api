@@ -6,7 +6,7 @@ require_relative 'siktfunctions'
 if(ARGV.size < 2)
 	dbg("Usage: ruby #{$0} prod/beta aid filename")
 	dbg("prod/beta angir om kommandoene skal kjøres mot henholdsvis #{$prod} eller #{$beta}")
-	dbg("Henter ut brukere på JSON format fra konto med id aid og lagrer de i fil med filename.")
+	dbg("Henter ut brukere på JSON format fra konto med id aid og lagrer de som csv i fil med filename.")
 	exit
 end
 

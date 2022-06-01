@@ -4,18 +4,23 @@
 
 require 'colorize'
 require 'uri'
+require 'open-uri'
 
 def dbg(s)
 	STDERR.puts s
 end
 
 #/api/v1/accounts/:account_id/logins
-def addLoginToUser(account_id, user_id, login_id)
+def addLoginToUser(account_id, user_id, login_id, authentication_provider_id)
+    puts "addLoginToUser: #{account_id} #{user_id} #{login_id} #{authentication_provider_id}"
     uri = sprintf("/api/v1/accounts/%d/logins", account_id)
-	 $canvas.post(uri, {
+    puts uri
+	result = $canvas.post(uri, {
 	 'user[id]' => user_id,
-	 'login[unique_id]' => login_id}
-	 )
+     'login[unique_id]' => login_id,
+     'login[authentication_provider_id]' => authentication_provider_id}
+     )
+     puts result
 end
 #Legg bruker uid til gruppe groupId
 def addUserToGroup(uid, groupId)
@@ -91,9 +96,14 @@ end
 #Returner profilen til bruker uid
 def getUserProfile(uid)
     uri = sprintf("/api/v1/users/%d/profile",uid)
-    dbg(uri)
-    profile = $canvas.get(uri)
-    return profile
+    begin
+        dbg(uri)
+        profile = $canvas.get(uri)
+        return profile
+    rescue
+        dbg("Kunne ikke hente profil: #{uri}")
+        return nil
+    end
 end
 
 #Returner de to siste karakterene i seksjonsnavnet. Tanken er at seksjonene er
@@ -150,7 +160,7 @@ def getModuleItems(cid, mid)
 end
 
 def getCourses(accountId)
-    uri = sprintf("/api/v1/accounts/%d/courses?include[]=teachers&per_page=999", accountId)
+    uri = sprintf("/api/v1/accounts/%d/courses?include[]=teachers&include[]=total_students&per_page=999", accountId)
     list = $canvas.get(uri)
     return list
 end
@@ -168,7 +178,10 @@ def getPages(cid)
 	return list
 end
 def getPageData(cid, url)
-	uri = sprintf("/api/v1/courses/%d/pages/%s", cid, url)
+	uriA = sprintf("/api/v1/courses/%d/pages/%s", cid, url)
+    uri = URI.escape(uriA)
+
+    puts(uri)
 	r = $canvas.get(uri)
 	return r["body"]
 end
@@ -252,6 +265,23 @@ def deleteDiscussion(cid, did)
     $uri = sprintf("/api/v1/courses/%d/discussion_topics/%d", cid, did)
     $canvas.delete($uri)
 end
+
+#curl https://<canvas>/api/v1/users/:user_id/logins/:login_id \
+#-H "Authorization: Bearer <ACCESS-TOKEN>" \
+#-X DELETE
+def deleteLogin(user_id, login_id)
+    $uri = sprintf("/api/v1/users/%d/logins/%d", user_id, login_id)
+    puts $uri
+    return $canvas.delete($uri)
+end    
+
+#DELETE /api/v1/accounts/:account_id/users/:user_id
+def deleteUser(user_id, account_id)
+    $uri = sprintf("/api/v1/accounts/%d/users/%d", account_id, user_id)
+    puts $uri
+    return $canvas.delete($uri)
+end    
+
 def deleteAssignment(cid, aid)
     $uri = sprintf("/api/v1/courses/%d/assignments/%d", cid, aid)
     $canvas.delete($uri)
@@ -270,10 +300,67 @@ def getDiscussion(cid, did)
     return d
 end
 
+def getContentOfUrl(url)
+    buffer = nil
+    result = nil
+
+    fileName = kode + ".json"
+    begin
+        buffer = open(fileName).read
+    rescue
+        buffer = open(url).read
+        open(fileName, 'wb') do |file|
+            file << buffer
+            file.close
+        end  
+    ensure
+        # Convert the String response into a plain old Ruby array. It is faster and saves you time compared to the standard Ruby libraries too.
+        if(buffer)
+            result = JSON.parse(buffer)
+        end
+    end
+	return result
+end
+
+
 $discussionType = 0
 $assignmentType = 1
 $quizType = 2
 $pageType = 3
+
+def download(cid, list, type)
+    puts "DOWNLOAD"
+	list.each { |c|
+		body = ""
+		title = ""
+        filename = ""
+		if(type == $pageType)
+            body = getPageData(cid, c['url'])
+            title = c["title"]
+            pid = c["page_id"]
+            filename = "Course#{cid}Page#{pid}.json"
+            puts filename
+		elsif (type == $discussionType)
+            body = c['message']
+            title = c["title"]
+		elsif (type == $assignmentType)
+            body = c['description']
+            title = c["name"]
+		elsif (type == $quizType)
+            body = c['description']
+            title = c["title"]
+		end
+        open(filename, 'wb') do |file|
+            o = {}
+            o["course_id"] = cid
+            o["title"]=title
+            o["body"]=body
+            o["html_url"]=c["html_url"]
+            file << o.to_json
+            file.close
+        end  
+	} 
+end
 
 def searchFor(cid, list, type, s)
 	list.each { |c|

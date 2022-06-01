@@ -3,7 +3,7 @@ require 'canvas-api'
 require_relative 'connection' 
 require_relative 'siktfunctions' 
 
-if(ARGV.size < 2)
+if(ARGV.size < 3)
 	dbg("Usage: ruby #{$0} prod/beta aid filename")
 	dbg("prod/beta angir om kommandoene skal kjøres mot henholdsvis #{$prod} eller #{$beta}")
 	dbg("Henter ut brukere på JSON format fra konto med id aid og lagrer de i fil med filename.")

@@ -4,10 +4,11 @@ require 'colorize'
 require_relative 'connection' 
 require_relative 'siktfunctions' 
 
-if(ARGV.size < 3)
-	dbg("Usage: ruby #{$0} prod/beta aid userfile migratefile")
+if(ARGV.size < 5)
+	dbg("Usage: ruby #{$0} prod/beta aid userfile migratefile authentication_provider_id")
 	dbg("prod/beta angir om kommandoene skal kjøres mot henholdsvis #{$prod} eller #{$beta}")
-	dbg("Migrerer feidebrukere ved å legge til en ny login id fra migratefile for brukerne i userfile på konto med id aid.")
+    dbg("Migrerer feidebrukere ved å legge til en ny login id fra migratefile for brukerne i userfile på konto med id aid.")
+    dbg("Brukeren blir lagt til med authentication_provider_id")
 	exit
 end
 
@@ -15,6 +16,7 @@ dst = ARGV[0]
 accountid = ARGV[1]
 userfile = ARGV[2]
 migratefile = ARGV[3]
+authentication_provider_id = ARGV[4]
 
 $canvas = getCanvasConnection(dst)
 
@@ -35,14 +37,17 @@ users = CSV.open(userfile, headers: :first_row).map(&:to_h)
 #}
 
 mapping.each { |x|
-    user = users.find {|y| y["login_id"] == x[0]}
+    oldFeideLogin = x[0]
+    user = users.find {|y| y["login_id"]  == oldFeideLogin}
     if(user)
         puts user
-        puts "Adding login " + x[1]
+        
+        newFeideLogin = x[1]
+        puts "Adding login " + newFeideLogin
         begin
-            addLoginToUser(account_id, user["id"], x[1])
+            addLoginToUser(account_id, user["id"], newFeideLogin, authentication_provider_id)
         rescue
-            msg = "addLoginToUser failed for id " + user["id"] + " user name " + user["name"] + " login id " + x[1]
+            msg = "addLoginToUser failed for id " + user["id"] + " user name " + user["name"] + " login id " + newFeideLogin
             puts msg.red
         end
     else

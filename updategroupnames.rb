@@ -8,7 +8,7 @@ dst = ARGV[0]
 if(ARGV.size < 3)
 	dbg("Usage: ruby #{$0} prod/beta gid outfile")
 	dbg("prod/beta angir om kommandoene skal kjøres mot henholdsvis #{$prod} eller #{$beta}")
-	dbg("Lager curlkommandoer i outfile.sh for å legge på faculty: på fakultetsgrupper.")
+	dbg("Lager curlkommandoer i outfile.sh for å endre Skoleleder til Leder i gruppenavn.")
 	dbg("Gjelder gruppekategori med id lik gid.")
 	dbg("Fikk ikke PUT til å fungere med whitmer sitt API. Derfor måtte jeg gå via curl.")
 	dbg("Husk å kjære chmod +x på .sh filen før du kjører den, og ta gjerne en kikk inni den for å se at ting ser greit ut.")
@@ -34,10 +34,9 @@ def myputs(s)
 end
 
 
-def processGroup(group, faculty)
-		 fixed_string = "faculty:" + faculty + ":" + group["description"]
+def processGroup(group, name)
 		 s1 = sprintf("curl '%s/api/v1/groups/%d' ", $host, group["id"]) 
-	     s2 = sprintf("-X PUT -F 'description=%s' ", fixed_string)
+	     s2 = sprintf("-X PUT -F 'name=%s' ", name)
 	     s3 = sprintf("-H 'Authorization: Bearer %s'", $token)
 	     s4 = sprintf("%s%s%s\n", s1,s2,s3)
 	     myputs(s4)
@@ -47,25 +46,11 @@ def processGroups(groups)
 	groups.each { |group| 
         faculty = ""
         gn = group["name"];
-        gd = group["description"]
-        if !gd.include? "faculty"
-            if gn.include? "Matematikk 1-7"
-                faculty = "matematikk17"
-            elsif gn.include? "Matematikk 8-10"
-                faculty = "matematikk810"
-            elsif gn.include? "Naturfag 1-7"
-                faculty = "naturfag17"
-            elsif gn.include? "Naturfag 8-10"
-                faculty = "naturfag810"
-            elsif gn.include? "Kunst"
-                faculty = "kunsthndverk110"
-            elsif gn.include? "Musikk"
-                faculty = "musikk110"
-            end
-            if(faculty != "")
-                dbg(group["name"])
-                processGroup(group, faculty)
-            end
+        if gn.include? "Skoleleder"
+            newName = gn.sub("Skoleleder", "Leder")
+            dbg(gn)
+            dbg(newName)
+            processGroup(group, newName)
         end
     }
 end
