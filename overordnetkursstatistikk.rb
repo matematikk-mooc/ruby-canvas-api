@@ -135,6 +135,8 @@ def printModuleItemsRowForUser(canvas, cid, mid, sid)
     
 	moduleItems.each { |x| 
 			id=x["id"]
+			$gcompletedpossible [id] = 0
+			$gcompleted [id] = 0
 			req = x["completion_requirement"]
 			if req
 				#This item could be completed by the student
